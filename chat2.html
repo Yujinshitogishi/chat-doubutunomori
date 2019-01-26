@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <!-- firebase UI読み込み -->
+    <script src="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.css" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- 以下Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.5.6/firebase.js"></script>
+    <script src="js/chat.js"></script>
+    <meta charset="utf-8">
+    <title>Chatアプリ</title>
+    <link rel="stylesheet" href="css/chat.css">
+    <link href="https://fonts.googleapis.com/css?family=Noto+Sans+JP:400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,900" rel="stylesheet">
+    ​
+
+    <!-- コンテンツ表示画面 -->
+    <!-- <div id="firebaseui-auth-container"></div>
+<div id="loader">Loading...</div> -->
+    <div class="home">
+        <div class=" home_container">
+            <div class="name_container">
+                <div class="name_middle">
+                    <h1 class="input_name">お名前を入力してください！</h1>
+                    <div class="name_box">
+                        <input type="text" id="name" placeholder="Name">
+                    </div>
+                </div>
+                <div class="ok_btn">
+                    <a href="#" id="next">OK</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="box">
+        <div id="output"></div>
+        <div class="inputBox">
+            <div class="input">
+
+                <div class="text_input">
+                    <textarea id="text" rows="2" placeholder="Comment"></textarea>
+                    <a href="#" class="square_btn" id="send">
+                        <!-- <i class="fa fa-caret-right"> -->
+                        <img src="imgs/yajirusi.png" alt="送信" width="80px">
+                        <!-- </i>  -->
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <input type="text" id="username" placeholder="Name" value="" display="none"> -->
+    <!--/ コンテンツ表示画面 -->
+
+
+    <script src="https://www.gstatic.com/firebasejs/5.5.6/firebase.js"></script>
+    <!--以下JavaScript領域 -->
+    <script>
+        function getValue(idname) {
+            let result = $('#name').val();
+            let namevalue = document.getElementById("name");
+            namevalue.value = result;
+        }
+        $('#next').on('click', function () {
+            $('.home').hide();
+            $(".box").show();
+            getValue();
+        })
+        //  <input type="button" value="表示"
+        //    onclick="document.getElementById('xyz').style.display = 'inline';">
+        //   Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyC1i-wI2ta_iY7duNQQIlbIksR_uSU6cLY",
+            authDomain: "chat-2-bab27.firebaseapp.com",
+            databaseURL: "https://chat-2-bab27.firebaseio.com",
+            projectId: "chat-2-bab27",
+            storageBucket: "chat-2-bab27.appspot.com",
+            messagingSenderId: "464479930272"
+        };
+        firebase.initializeApp(config);
+
+        //  MSG送受信準備
+        const newPostRef = firebase.database().ref();
+
+        //  Submit:MSG送信
+        // $("#send").on("click",function(){
+        //     newPostRef.push({
+        //         username:$("#username").val(),
+        //         text: $("#text").val(),
+        //         time: time()
+        //     });
+        //     $("#text").val("");
+        // });
+
+        $("#send").on("click", function () {
+            newPostRef.push({
+                username: $("#name").val(),
+                text: $("#text").val(),
+                time: time()
+            });
+            $("#text").val("");
+        });
+
+        //  enterキーによる送信
+        $("#text").on("keydown", function (e) {
+            if (e.keyCode == 13) {
+                newPostRef.push({
+                    username: $("#name").val(),
+                    text: $("#text").val(),
+                    time: time()
+                });
+                $("#text").val("");
+            }
+
+        });
+
+
+        // MSGデータ受信
+        newPostRef.on("child_added", function (data) {
+            const v = data.val();
+            const k = data.key;
+            let str = "";
+            // 追記
+            str += '<div id ="' + k + '" class="msg_main">'
+            str += '<div class="msg_left">';
+            str += '<div class=""><img src="imgs/buke.png" alt="" class="icon ' + v.username + ' " width="30"></div>';
+            str += '<div class="msg">';
+            str += '<div class="name">' + v.username + '</div>';
+            str += '<div class="text">' + v.text + '</div>';
+            str += '</div>';
+            str += '</div>';
+            str += '<div class="msg_right">';
+            str += '<div class="time">' + v.time + '</div>';
+            str += '</div>';
+            str += '</div>';
+            // 
+            $('#output').prepend(str);
+        });
+
+
+        //  時間を取得する関数
+        function time() {
+            let date = new Date();
+            let mm = date.getMonth() + 1;
+            let dd = date.getDate();
+            let hh = ("0" + date.getHours()).slice(-2);
+            let min = ("0" + date.getMinutes()).slice(-2);
+            // let sec = ("0"+date.getSeconds()).slice(-2);
+            // let time = + mm + "/" + dd + "" + hh + ":" + min;
+            // let time = + hh + ":" + min + ":" + sec;
+            let time = + mm + '/' + dd + '\t' + hh + ':' + min;
+            return time;
+        }
+
+
+    </script>
+
+    </body>
+
+</html>
